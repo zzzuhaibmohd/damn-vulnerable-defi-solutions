@@ -8,8 +8,6 @@ Featuring flash loans, price oracles, governance, NFTs, lending pools, smart con
 
 Visit [damnvulnerabledefi.xyz](https://damnvulnerabledefi.xyz)
 
-## Disclaimer
+**Challenge #1 (Unstoppable) Writeup**
 
-All Solidity code, practices and patterns in this repository are DAMN VULNERABLE and for educational purposes only.
-
-DO NOT USE IN PRODUCTION.
+https://zuhaibmd.medium.com/damn-vulnerable-defi-challenge-1-unstoppable-3776f707a6bc
