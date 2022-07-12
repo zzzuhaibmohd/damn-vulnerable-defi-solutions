@@ -19,3 +19,7 @@ https://zuhaibmd.medium.com/damn-vulnerable-defi-challenge-2-naive-receiver-6743
 **Challenge #3 (Truster) Writeup**
 
 https://zuhaibmd.medium.com/damn-vulnerable-defi-challenge-3-truster-ec5d6832a506
+
+**Challenge #4 (Side Entrance) Writeup**
+
+https://zuhaibmd.medium.com/damn-vulnerable-defi-challenge-4-side-entrance-5b55ed88bf3f
