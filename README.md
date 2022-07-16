@@ -27,3 +27,7 @@ https://zuhaibmd.medium.com/damn-vulnerable-defi-challenge-4-side-entrance-5b55e
 **Challenge #5 (The Rewarder) Writeup**
 
 https://zuhaibmd.medium.com/damn-vulnerable-defi-challenge-5-the-rewarder-da25e996fa9c
+
+**Challenge #6 (Selfie) Writeup**
+
+https://zuhaibmd.medium.com/damn-vulnerable-defi-challenge-6-selfie-370edd6654ac
