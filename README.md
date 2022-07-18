@@ -35,3 +35,7 @@ https://zuhaibmd.medium.com/damn-vulnerable-defi-challenge-6-selfie-370edd6654ac
 **Challenge #7 (Compromised) Writeup**
 
 https://zuhaibmd.medium.com/damn-vulnerable-defi-challenge-7-compromised-feb249be0e2f
+
+**Challenge #8 (Puppet) Writeup**
+
+https://zuhaibmd.medium.com/damn-vulnerable-defi-challenge-8-puppet-18721340245c
