@@ -39,3 +39,7 @@ https://zuhaibmd.medium.com/damn-vulnerable-defi-challenge-7-compromised-feb249b
 **Challenge #8 (Puppet) Writeup**
 
 https://zuhaibmd.medium.com/damn-vulnerable-defi-challenge-8-puppet-18721340245c
+
+**Challenge #9 (Puppet) Writeup**
+
+https://zuhaibmd.medium.com/damn-vulnerable-defi-challenge-9-puppet-v2-9a1d73715241
