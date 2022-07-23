@@ -43,3 +43,7 @@ https://zuhaibmd.medium.com/damn-vulnerable-defi-challenge-8-puppet-18721340245c
 **Challenge #9 (Puppet) Writeup**
 
 https://zuhaibmd.medium.com/damn-vulnerable-defi-challenge-9-puppet-v2-9a1d73715241
+
+**Challenge #10 (Free Rider) Writeup**
+
+https://zuhaibmd.medium.com/damn-vulnerable-defi-challenge-10-free-rider-341c8c0f52a1
