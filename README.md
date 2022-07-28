@@ -51,3 +51,7 @@ https://zuhaibmd.medium.com/damn-vulnerable-defi-challenge-10-free-rider-341c8c0
 **Challenge #11 (Backdoor) Writeup**
 
 https://zuhaibmd.medium.com/damn-vulnerable-defi-challenge-11-backdoor-33cac87c37b8
+
+**Challenge #12 (Climber) Writeup**
+
+https://zuhaibmd.medium.com/damn-vulnerable-defi-challenge-12-climber-35f989288c8c
